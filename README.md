@@ -28,7 +28,7 @@
 ├── geo-rsi.js              GEO RSI 的光谱曲线 Canvas
 ├── assets/                 本地 SVG（品牌标记、分享图）
 ├── fonts/                  OpenAI Sans / LF Serif 的 woff2（36 个，已本地化）
-├── _next/…/chunks/*.css    22 个样式 chunk（仅保留被引用者，已无运行时 JS）
+├── styles/*.css            22 个样式文件（抓取自原站的 _next/…/chunks，已改名）
 └── docs/                   预览图
 ```
 
@@ -79,8 +79,8 @@ Hero 完全由 `local-effects.js` 在 Canvas 上绘制，没有任何底图：
 
 ## 资源来源与许可（重要）
 
-- 页面的 HTML 骨架与 `_next/` 下的 22 个 CSS chunk 抓取自 OpenAI 线上产品页，仅用于复用其排版与网格节奏；品牌文案、内容、导航与图片已全部替换为 Geobyte 的虚构实验室内容
-- `fonts/` 内是 **OpenAI Sans / LF Serif 的官方 woff2**，属于第三方专有字体，随仓库公开分发可能存在许可问题。若用于正式公开项目，建议删除 `fonts/` 并把 `_next/` 中的 `@font-face` 换成可商用开源字体（如 Inter、IBM Plex Sans）
+- 页面的 HTML 骨架与 `styles/` 下的 22 个 CSS 抓取自 OpenAI 线上产品页，仅用于复用其排版与网格节奏；品牌文案、内容、导航与图片已全部替换为 Geobyte 的虚构实验室内容
+- `fonts/` 内是 **OpenAI Sans / LF Serif 的官方 woff2**，属于第三方专有字体，随仓库公开分发可能存在许可问题。若用于正式公开项目，建议删除 `fonts/` 并把 `styles/` 中的 `@font-face` 换成可商用开源字体（如 Inter、IBM Plex Sans）
 - 因此本仓库暂不附加开源许可证；请在确认字体与样式素材的授权后再决定
 
 ## 校验
@@ -94,11 +94,11 @@ Hero 完全由 `local-effects.js` 在 Canvas 上绘制，没有任何底图：
 | 转场 | 双向各 40 帧、约 17ms/帧；终点矩形与锚点精确吻合 |
 | 仓库体积 | 约 4.5 MB / 60+ 文件（其中字体约 3.3 MB） |
 
-## 这个目录是怎么来的
+## 目录来源与两个命名说明
 
-本仓库由开发目录生成，不含任何构建脚本或抓取残留：
+这里就是唯一事实来源，站点没有任何构建步骤，改文件即改站点。它的来历值得记录：
 
-- 单一事实来源是 `astra-clone/`（开发副本，含兼容路由与抓取备份，不入库）
-- `build-clean-site.py` 负责压平路由、只复制被引用的 22 个 CSS chunk、下载并改写字体路径、剔除引用缺失文件的死规则，并复制本目录下的 `README.md` / `.gitignore` / `.gitattributes` / `docs/`
-- `localize-icons.py` 把原站图标雪碧图替换为内联 SVG；`inject-theme-ui.py`、`upgrade-boot-cover.py` 分别注入主题按钮与首绘前的启动脚本
-- 重新生成：在 `astra-clone/` 下依次运行上述脚本中的 `python build-clean-site.py` 即可（构建缓存位于同级 `.asset-cache/`，不会重复下载）
+- `styles/` 里的文件名（如 `025xl3bqxvqx6.css`）是原站的构建哈希，内容未作改写，只有 `@font-face` 的字体路径与少量死规则被调整过
+- 原本沿用抓取时的 `_next/static/immutable/chunks/` 路径，后改名为 `styles/`：以下划线开头的目录会被 Jekyll（GitHub Pages 旧管线）**整个排除**，导致 22 个 CSS 全部 404；同时一个零构建的站点也不该假装自己是 Next.js 产物
+- `.nojekyll` 仍然保留，它解决的是另一半问题：跳过 Jekyll 全量构建本身（否则每次发布要空等数分钟），与下划线无关
+- HTML 骨架最初抓取自 OpenAI 线上产品页，其 RSC 数据、运行时 JS、iframe、远程图片与远程图标雪碧图都已移除，图标改为内联 SVG
