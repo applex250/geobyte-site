@@ -1,0 +1,10 @@
+# local verification artefacts
+_shots/
+*.log
+*.err
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+.vscode/
+.idea/

@@ -1,0 +1,412 @@
+/* Fully local motion layer. Original page CSS chunks remain the base layer. */
+
+/* Native scrollbars and form controls follow the active theme. */
+html { color-scheme: dark; }
+html.light { color-scheme: light; }
+body { transition: background-color 320ms ease, color 320ms ease; }
+
+/* Safety net: some SSR containers (e.g. the header bar) scope themselves to
+   dark with their own `.dark` class, and `:where(.dark)` re-declares the dark
+   palette on them even when html is light. local-effects.js keeps the class in
+   sync at runtime; this rule covers the pre-JS paint with the light palette. */
+html.light .dark:not(body) {
+  --color-background: #fff;
+  --color-background-pink: #fef5fb;
+  --color-primary-2: #00000005;
+  --color-primary-4: #0000000a;
+  --color-primary-12: #0000001f;
+  --color-primary-44: #00000070;
+  --color-primary-60: #0009;
+  --color-primary-80: #000c;
+  --color-primary-100: #000;
+  --color-primary-nav: #ffffff70;
+  --color-primary-inactive: #ffffff70;
+  --color-primary-solid-4: #f5f5f5;
+  --color-primary-solid-12: #e0e0e0;
+  --color-primary-solid-44: #8f8f8f;
+  --color-primary-solid-60: #666;
+  --color-primary-solid-80: #333;
+  --color-primary-solid-100: #000;
+  --color-primary-solid-nav: #707070;
+  --color-primary-solid-inactive: #707070;
+  --color-secondary-4: #ffffff0a;
+  --color-secondary-12: #ffffff1f;
+  --color-secondary-44: #ffffff70;
+  --color-secondary-60: #fff9;
+  --color-secondary-80: #fffc;
+  --color-secondary-100: #fff;
+  --color-secondary-solid-4: #0a0a0a;
+  --color-secondary-solid-12: #1f1f1f;
+  --color-secondary-solid-44: #707070;
+  --color-secondary-solid-60: #999;
+  --color-secondary-solid-80: #ccc;
+  --color-secondary-solid-100: #fff;
+  --color-tertiary-60: #f1f1f1ad;
+  --color-tertiary-80: #f1f1f1cc;
+  --color-tertiary-100: #f1f1f1;
+  --color-tertiary-hint: #ffffff70;
+  --color-tertiary-solid-60: #a4a4a4;
+  --color-tertiary-solid-80: #c1c1c1;
+  --color-tertiary-solid-100: #f1f1f1;
+  --color-tertiary-solid-hint: #707070;
+  --color-hue-red: #f53255;
+  --color-hue-lime: #9dca1c;
+  --color-hue-magenta: #eb56c5;
+  --color-hue-blue: #29bdfd;
+  --color-hue-yellow: #ffaf00;
+  --color-supply-accent-color: #00f;
+  --color-syntax-copy: #000;
+  --color-syntax-comment: #00000070;
+  --color-syntax-highlight: #0000000a;
+  --color-syntax-error: #f22f4d;
+  --color-gray-200: #e1e3e8;
+}
+
+/* The particle Earth is full-bleed, so the SSR reservation for the fixed
+   header (112px) and the article's 40px top offset are dropped. #top now
+   anchors at document y=0 and pulling up at the top reveals no empty band.
+   Only padding-top is overridden so --page-top-space stays intact for other
+   consumers; anchor targets keep their own --header-h clearance. */
+[class~="pt-(--page-top-space)"] { padding-top: 0 !important; }
+article:has(> #top) { margin-top: 0 !important; }
+
+/* Local Geobyte wordmark replaces the source site's SVG brand mark. */
+.local-geobyte-wordmark {
+  color: currentColor;
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: -.075em;
+  line-height: 1;
+}
+
+
+.local-particle-hero {
+  position: relative !important;
+  overflow: hidden !important;
+  background: var(--color-background, #000) !important;
+  min-height: max(100svh, 640px) !important;
+}
+
+.local-particle-hero > .AstraHero-module___Ja0lG__layout {
+  position: relative !important;
+  isolation: isolate;
+  min-height: max(100svh, 640px) !important;
+  overflow: hidden;
+  background: var(--color-background, #000);
+  transition: background-color 320ms ease;
+}
+
+.local-particle-host {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  outline: none;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+}
+.local-particle-host.is-dragging { cursor: grabbing; }
+.local-particle-host:focus-visible { outline: 2px solid rgba(255,255,255,.7); outline-color: var(--color-primary-100, rgba(255,255,255,.7)); outline-offset: -8px; }
+.local-particle-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* The live GEO / BYTE chrome is rendered locally because the fallback labels
+   live in noscript. */
+.local-particle-hero .AstraHero-module___Ja0lG__fixedChrome { display: none !important; }
+.local-hero-chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  color: var(--color-primary-100, #fafafa);
+}
+.local-hero-label {
+  position: absolute;
+  top: 50%;
+  margin: 0;
+  color: var(--color-primary-100, #fafafa);
+  font-size: clamp(3rem, 7.3vw, 8.6rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.055em;
+  text-shadow: 0 0 1.5rem rgba(250,250,250,.08);
+  user-select: none;
+  transform: translateY(-50%);
+  opacity: var(--astra-copy-opacity, 1);
+  transition: opacity 800ms cubic-bezier(.22,1,.36,1), transform 800ms cubic-bezier(.22,1,.36,1);
+}
+.local-hero-label-left { left: clamp(1.25rem, 4vw, 3.5rem); }
+.local-hero-label-right { right: clamp(1.25rem, 4vw, 3.5rem); }
+html.light .local-hero-label { text-shadow: 0 0 1.5rem rgba(20,30,60,.10); }
+.local-scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 2rem;
+  color: var(--color-primary-60, rgba(250,250,250,.58));
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  opacity: var(--astra-copy-opacity, 1);
+  animation: local-scroll-pulse 2.4s cubic-bezier(.22,1,.36,1) infinite;
+}
+@keyframes local-scroll-pulse {
+  0%,100% { transform: translate(-50%,0); opacity: .45; }
+  50% { transform: translate(-50%,7px); opacity: .9; }
+}
+.local-particle-hero .AstraHero-module___Ja0lG__layout > h1,
+.local-particle-hero .AstraHero-module___Ja0lG__layout > p { position: absolute; z-index: 5; }
+.local-particle-hero .local-particle-host { z-index: 2; }
+.local-particle-hero .local-hero-chrome { z-index: 5; }
+
+/* The static SSR header uses the source site's drawer geometry. These local
+   states make the rebranded drawer work without the removed runtime. */
+#mobileNav { visibility: hidden; pointer-events: none; }
+#mobileNav.open { visibility: visible; pointer-events: auto; clip-path: inset(0 0 0 0) !important; }
+#mobileNav.open a { pointer-events: auto; }
+.local-mobile-theme-row { padding-block: .4rem; }
+.local-mobile-theme-row .local-theme-btn { margin-inline-start: -.5rem; }
+
+
+/* Offline poster is used only as a very subtle fallback below the canvas. */
+.local-poster-underlay { display: none !important; }
+
+/* The two scroll-cue canvases use the original 80vh / 36rem geometry. */
+.local-cue-host {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  height: 80vh;
+  min-height: 380px;
+  margin-inline: auto;
+  pointer-events: auto;
+}
+.local-cue-host + [data-astra-scroll-cue] { display: none !important; }
+
+/* Native reveal rhythm used by the local fallback layer. */
+.local-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 800ms cubic-bezier(.22,1,.36,1), transform 800ms cubic-bezier(.22,1,.36,1);
+}
+.local-reveal.local-visible { opacity: 1; transform: none; }
+
+/* Local progress indicator, intentionally quiet like the original chrome. */
+.local-progress {
+  position: fixed;
+  z-index: 200;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: calc(var(--local-scroll-progress, 0) * 100%);
+  background: var(--color-primary-100, rgba(255,255,255,.9));
+  transform-origin: left;
+  pointer-events: none;
+}
+
+/* Theme toggle: one button, two icons; the active theme hides its own icon. */
+.local-theme-btn .local-theme-icon-light { display: none; }
+html.light .local-theme-btn .local-theme-icon-light { display: block; }
+html.light .local-theme-btn .local-theme-icon-dark { display: none; }
+
+@media (max-width: 767px) {
+  .local-particle-hero > .AstraHero-module___Ja0lG__layout,
+  .local-particle-hero { min-height: 100svh !important; }
+  .local-hero-label-left { top: 46%; left: 1rem; }
+  .local-hero-label-right { top: 54%; right: 1rem; }
+  .local-cue-host { min-height: 300px; height: 70vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .local-reveal { opacity: 1; transform: none; transition: none; }
+  .local-particle-host { cursor: default; }
+  .local-particle-canvas { opacity: .9; }
+  .local-scroll-hint { animation: none; }
+}
+
+/* ---------- GEO RSI capsule ---------- */
+/* Semantic colours only, so the pill is white on the dark theme and black on
+   the light theme with no extra rules. */
+.local-geo-rsi-cta {
+  position: absolute;
+  right: clamp(1.25rem, 4vw, 3.5rem);
+  bottom: 2rem;
+  z-index: 7;
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .74rem 1.3rem;
+  border-radius: 999px;
+  background: var(--color-primary-100, #fff);
+  color: var(--color-background, #000);
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .3);
+  opacity: var(--astra-copy-opacity, 1);
+  transition:
+    transform 260ms cubic-bezier(.22, 1, .36, 1),
+    box-shadow 260ms cubic-bezier(.22, 1, .36, 1),
+    background-color 320ms ease,
+    color 320ms ease,
+    opacity 800ms cubic-bezier(.22, 1, .36, 1);
+}
+.local-geo-rsi-cta:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0, 0, 0, .36); }
+.local-geo-rsi-cta:active { transform: translateY(0); }
+.local-geo-rsi-cta:focus-visible { outline: 2px solid var(--color-primary-100, #fff); outline-offset: 3px; }
+.local-geo-rsi-cta-arrow { transition: transform 260ms cubic-bezier(.22, 1, .36, 1); }
+.local-geo-rsi-cta:hover .local-geo-rsi-cta-arrow { transform: translateX(3px); }
+
+/* Full-page panel used by the capsule transition. It is always viewport sized;
+   the clip-path (set from JS) is what animates, so no layout is touched. */
+.local-page-cover {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: auto;
+  will-change: clip-path, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .local-geo-rsi-cta { transition: background-color 200ms linear, color 200ms linear; }
+}
+
+/* ---------- GEO RSI page ---------- */
+.rsi-shell {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background, #000);
+  color: var(--color-primary-100, #fff);
+  font-family: var(--font-sans);
+}
+.rsi-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .85rem clamp(1.25rem, 4vw, 3.5rem);
+  border-bottom: 1px solid var(--color-primary-12);
+  background: color-mix(in srgb, var(--color-background, #000) 84%, transparent);
+  backdrop-filter: blur(14px) saturate(150%);
+}
+.rsi-brand { color: inherit; text-decoration: none; }
+.rsi-top-actions { display: flex; align-items: center; gap: .55rem; }
+.rsi-theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-primary-12);
+  background: transparent;
+  color: var(--color-primary-60);
+  cursor: pointer;
+  transition: color 220ms ease, border-color 220ms ease;
+}
+.rsi-theme:hover { color: var(--color-primary-100); border-color: var(--color-primary-44); }
+.rsi-theme:focus-visible { outline: 2px solid var(--color-primary-100); outline-offset: 2px; }
+.rsi-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .62rem 1.15rem;
+  border-radius: 999px;
+  background: var(--color-primary-100, #fff);
+  color: var(--color-background, #000);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 260ms cubic-bezier(.22, 1, .36, 1), background-color 320ms ease, color 320ms ease;
+}
+.rsi-back:hover { transform: translateY(-2px); }
+.rsi-main {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 74rem;
+  margin-inline: auto;
+  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 4vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.25rem, 5vw, 4rem);
+}
+.rsi-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(1.5rem, 3vw, 3rem); align-items: center; }
+.rsi-eyebrow { margin: 0 0 .7rem; color: var(--color-primary-44); font-size: .7rem; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; }
+.rsi-title { margin: 0 0 1.1rem; font-size: clamp(3rem, 8vw, 6rem); line-height: .92; letter-spacing: -.055em; font-weight: 550; }
+.rsi-lede { margin: 0; max-width: 46ch; color: var(--color-primary-60); line-height: 1.62; }
+.rsi-lede strong { color: var(--color-primary-100); font-weight: 600; }
+.rsi-tags { list-style: none; display: flex; flex-wrap: wrap; gap: .45rem; margin: 1.4rem 0 0; padding: 0; }
+.rsi-tags li { border: 1px solid var(--color-primary-12); border-radius: 999px; padding: .34rem .82rem; font-size: .72rem; color: var(--color-primary-60); }
+.rsi-plot-wrap {
+  position: relative;
+  padding: .9rem;
+  border: 1px solid var(--color-primary-12);
+  border-radius: 1.15rem;
+  background: color-mix(in srgb, var(--color-tertiary-100, #1f1f1f) 60%, transparent);
+}
+.rsi-plot { display: block; width: 100%; height: clamp(280px, 42vh, 420px); }
+.rsi-readout { position: absolute; right: 1.15rem; bottom: .95rem; margin: 0; display: flex; align-items: baseline; gap: .5rem; }
+.rsi-readout-label { font-size: .66rem; letter-spacing: .22em; color: var(--color-primary-44); text-transform: uppercase; }
+.rsi-readout-value { font-family: var(--font-mono); font-size: 1.85rem; font-weight: 600; letter-spacing: -.02em; }
+.rsi-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: clamp(1rem, 2vw, 1.75rem); }
+.rsi-card {
+  border: 1px solid var(--color-primary-12);
+  border-radius: 1.15rem;
+  padding: clamp(1.1rem, 2vw, 1.6rem);
+  background: color-mix(in srgb, var(--color-tertiary-100, #1f1f1f) 42%, transparent);
+}
+.rsi-card h2, .rsi-table-wrap h2, .rsi-notes h2 { margin: 0 0 .7rem; font-size: 1.24rem; letter-spacing: -.02em; font-weight: 600; }
+.rsi-note { margin: 0; color: var(--color-primary-60); line-height: 1.6; }
+.rsi-sliders { display: grid; gap: 1rem; margin-top: 1.25rem; }
+.rsi-sliders label { display: grid; gap: .45rem; font-size: .8rem; color: var(--color-primary-60); }
+.rsi-sliders input[type="range"] { width: 100%; accent-color: var(--color-primary-100); }
+.rsi-formula {
+  margin: 0 0 1rem;
+  padding: .9rem 1rem;
+  border-radius: .7rem;
+  background: color-mix(in srgb, var(--color-primary-100, #fff) 7%, transparent);
+  font-family: var(--font-mono);
+  font-size: .8rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  color: var(--color-primary-100);
+}
+.rsi-table-wrap { border-top: 1px solid var(--color-primary-12); padding-top: clamp(1.5rem, 3vw, 2.5rem); }
+.rsi-table-wrap table { width: 100%; border-collapse: collapse; text-align: start; font-size: .92rem; }
+.rsi-table-wrap th, .rsi-table-wrap td { padding: .7rem .6rem; border-bottom: 1px solid var(--color-primary-12); text-align: start; }
+.rsi-table-wrap th { color: var(--color-primary-44); font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.rsi-table-wrap td:first-child { font-weight: 600; }
+.rsi-note-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: clamp(1rem, 2vw, 1.6rem); }
+.rsi-notes p { margin: 0; color: var(--color-primary-60); line-height: 1.62; }
+.rsi-notes strong { color: var(--color-primary-100); }
+.rsi-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: 1.4rem clamp(1.25rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--color-primary-12);
+  color: var(--color-primary-44);
+  font-size: .76rem;
+}
+@media (max-width: 860px) {
+  .rsi-hero { grid-template-columns: 1fr; }
+  .rsi-top { position: static; }
+}

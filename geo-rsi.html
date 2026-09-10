@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>GEO RSI · Geobyte Lab</title>
+<meta content="GEO RSI, an interactive relative spectral index explorer for hydrothermal alteration mapping, built by the Geobyte lab." name="description"/>
+<link href="assets/geobyte-mark.svg" rel="icon" type="image/svg+xml"/>
+<link data-precedence="next" href="_next/static/immutable/chunks/2d_e1vds64ouo.css" rel="stylesheet"/>
+<link data-precedence="next" href="_next/static/immutable/chunks/025xl3bqxvqx6.css" rel="stylesheet"/>
+<link data-precedence="next" href="_next/static/immutable/chunks/1iarv0m1jl2oe.css" rel="stylesheet"/>
+<link data-precedence="next" href="_next/static/immutable/chunks/1c3l7ofa-vr4e.css" rel="stylesheet"/>
+<link data-precedence="next" href="_next/static/immutable/chunks/011mcu7n6v7o0.css" rel="stylesheet"/>
+<link data-precedence="next" href="_next/static/immutable/chunks/0y9_y8-vlpmn1.css" rel="stylesheet"/>
+<link href="local-effects.css" rel="stylesheet"/>
+</head>
+<body class="text-p1 text-primary-100 dark bg-background">
+<!--geobyte-theme-boot--><script>(function(){try{if(localStorage.getItem('geobyte-theme')==='light'){document.documentElement.classList.add('light');document.body.classList.remove('dark');document.body.classList.add('light');}}catch(e){}try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches){var d=JSON.parse(sessionStorage.getItem('geobyte-page-cover'));if(d&&d.color&&Date.now()-(d.at||0)<4000){var p=document.createElement('div');p.id='geobyte-cover';p.style.cssText='position:fixed;inset:0;z-index:9999;background:'+d.color;document.body.appendChild(p);setTimeout(function(){if(p.parentNode)p.remove();},2500);}}}catch(e){}})();</script>
+<div class="rsi-shell">
+  <header class="rsi-top">
+    <a class="rsi-brand" href="index.html">
+      <span class="local-geobyte-wordmark">geobyte</span>
+    </a>
+    <div class="rsi-top-actions">
+      <button aria-label="Switch to light theme" class="local-theme-btn rsi-theme" id="themeBtn" type="button">
+        <svg aria-hidden="true" class="local-theme-icon-dark" fill="none" height="16" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" width="16"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8Z"></path></svg>
+        <svg aria-hidden="true" class="local-theme-icon-light" fill="none" height="16" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" width="16"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.2v2.4M12 19.4v2.4M2.2 12h2.4M19.4 12h2.4M5.1 5.1l1.7 1.7M17.2 17.2l1.7 1.7M18.9 5.1l-1.7 1.7M6.8 17.2l-1.7 1.7"></path></svg>
+      </button>
+    <a aria-label="Back to the Geobyte lab page" class="rsi-back" data-geo-rsi-cover data-geo-rsi-anchor=".local-geo-rsi-cta" href="index.html">
+      <span aria-hidden="true">&larr;</span><span>Back to lab</span>
+    </a>
+  </header>
+
+  <main class="rsi-main">
+    <section class="rsi-hero">
+      <div class="rsi-hero-meta">
+        <p class="rsi-eyebrow">GEO / BYTE</p>
+        <h1 class="rsi-title" id="rsiBadge">GEO RSI</h1>
+        <p class="rsi-lede">A compact explorer for the <strong>relative spectral index</strong> we use to map
+          hydrothermal alteration from multispectral data. Move the bands, watch the response curve, read the
+          index the way our mineral-mapping group reads it.</p>
+        <ul class="rsi-tags">
+          <li>Remote sensing</li><li>Mineral mapping</li><li>SWIR · TIR</li><li>Open method</li>
+        </ul>
+      </div>
+      <div class="rsi-plot-wrap">
+        <canvas aria-label="Spectral response curve and computed RSI value" class="rsi-plot" height="420" width="640"></canvas>
+        <p class="rsi-readout"><span class="rsi-readout-label">RSI</span><span class="rsi-readout-value">0.00</span></p>
+      </div>
+    </section>
+
+    <section class="rsi-controls">
+      <article class="rsi-card">
+        <h2>Band response</h2>
+        <p class="rsi-note">Every slider scales one absorption feature. The curve is normalised reflectance,
+          so the shape is what matters, not the absolute level.</p>
+        <div class="rsi-sliders">
+          <label><span>Al-OH absorption 2.2 &micro;m</span><input max="100" min="0" step="1" type="range" value="62" data-rsi-key="clay"/></label>
+          <label><span>Fe-OH absorption 2.35 &micro;m</span><input max="100" min="0" step="1" type="range" value="28" data-rsi-key="fe"/></label>
+          <label><span>Quartz restlen (TIR contrast)</span><input max="100" min="0" step="1" type="range" value="41" data-rsi-key="quartz"/></label>
+          <label><span>Surface brightness</span><input max="100" min="5" step="1" type="range" value="70" data-rsi-key="gain"/></label>
+        </div>
+      </article>
+      <article class="rsi-card">
+        <h2>Definition</h2>
+        <pre class="rsi-formula">RSI = ( band_mean / band_peak )
+        - ( band shoulder / band peak )</pre>
+        <p class="rsi-note">Ratio of a reflectance shoulder to its absorption core. Positive peaks flag
+          argillic and phyllic halos; the value plotted above is the strongest feature in the window.</p>
+      </article>
+    </section>
+
+    <section class="rsi-table-wrap">
+      <h2>Window we map</h2>
+      <div class="table-scroll">
+        <table>
+          <caption class="sr-only">Spectral windows used by GEO RSI</caption>
+          <thead><tr><th scope="col">Window</th><th scope="col">Wavelength</th><th scope="col">Sensitivity</th><th scope="col">Reads as</th></tr></thead>
+          <tbody>
+            <tr><td>Visible</td><td>0.4 - 0.7 &micro;m</td><td>Iron oxide tint</td><td>Oxidised cap rocks</td></tr>
+            <tr><td>SWIR 1</td><td>1.55 - 1.75 &micro;m</td><td>Al-OH, Mg-OH</td><td>Clay alteration zones</td></tr>
+            <tr><td>SWIR 2</td><td>2.1 - 2.5 &micro;m</td><td>Carbonate, NH4</td><td>Distal propylitic</td></tr>
+            <tr><td>TIR</td><td>8 - 12 &micro;m</td><td>Quartz content</td><td>Silicification</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rsi-notes">
+      <h2>Limitations, stated plainly</h2>
+      <div class="rsi-note-grid">
+        <p><strong>Atmosphere first.</strong> Ratios suppress illumination but not water vapour; run this on
+          surface-reflectance products, not raw radiance.</p>
+        <p><strong>Mixing is the norm.</strong> A pixel holding 30% clay still reads weak. Report the fraction,
+          not just the flag.</p>
+        <p><strong>Field check beats the plot.</strong> Every anomaly listed here has been walked or sampled
+          before it enters the map.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rsi-foot">
+    <span>Geobyte Lab · GEO RSI</span>
+    <span>Illustrative tooling, not a clinical or commercial product</span>
+  </footer>
+</div>
+<script src="local-effects.js"></script>
+<script src="geo-rsi.js"></script>
+</body></html>
