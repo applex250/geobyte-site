@@ -4,6 +4,8 @@
 
 **纯静态、零构建、零依赖、零第三方请求**：直接打开 `index.html`，或整目录丢到任意静态托管（GitHub Pages / Cloudflare Pages / S3）即可运行。
 
+**在线预览：<https://applex250.github.io/geobyte-site/>**
+
 ![Geobyte hero — dark](docs/preview.png)
 
 ![Light theme and GEO RSI arrival](docs/preview-light.png)
