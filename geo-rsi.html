@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<html lang="zh-CN" dir="ltr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>GEO RSI · Geobyte Lab</title>
-<meta content="GEO RSI, an interactive relative spectral index explorer for hydrothermal alteration mapping, built by the Geobyte lab." name="description"/>
+<meta content="GEO RSI — 面向地质科研的 7×24 自进化 harness 对话界面，Geobyte Lab。" name="description"/>
 <link href="assets/geobyte-mark.svg" rel="icon" type="image/svg+xml"/>
 <link data-precedence="next" href="styles/2d_e1vds64ouo.css" rel="stylesheet"/>
 <link data-precedence="next" href="styles/025xl3bqxvqx6.css" rel="stylesheet"/>
@@ -13,94 +13,194 @@
 </head>
 <body class="text-p1 text-primary-100 dark bg-background">
 <!--geobyte-theme-boot--><script>(function(){try{if(localStorage.getItem('geobyte-theme')==='light'){document.documentElement.classList.add('light');document.body.classList.remove('dark');document.body.classList.add('light');}}catch(e){}try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches){var d=JSON.parse(sessionStorage.getItem('geobyte-page-cover'));if(d&&d.color&&Date.now()-(d.at||0)<4000){var p=document.createElement('div');p.id='geobyte-cover';p.style.cssText='position:fixed;inset:0;z-index:9999;background:'+d.color;document.body.appendChild(p);setTimeout(function(){if(p.parentNode)p.remove();},2500);}}}catch(e){}})();</script>
-<div class="rsi-shell">
-  <header class="rsi-top">
-    <a class="rsi-brand" href="index.html">
-      <span class="local-geobyte-wordmark">geobyte</span>
-    </a>
-    <div class="rsi-top-actions">
-      <button aria-label="Switch to light theme" class="local-theme-btn rsi-theme" id="themeBtn" type="button">
-        <svg aria-hidden="true" class="local-theme-icon-dark" fill="none" height="16" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" width="16"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8Z"></path></svg>
-        <svg aria-hidden="true" class="local-theme-icon-light" fill="none" height="16" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" width="16"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.2v2.4M12 19.4v2.4M2.2 12h2.4M19.4 12h2.4M5.1 5.1l1.7 1.7M17.2 17.2l1.7 1.7M18.9 5.1l-1.7 1.7M6.8 17.2l-1.7 1.7"></path></svg>
-      </button>
-    <a aria-label="Back to the Geobyte lab page" class="rsi-back" data-geo-rsi-cover data-geo-rsi-anchor=".local-geo-rsi-cta" href="index.html">
-      <span aria-hidden="true">&larr;</span><span>Back to lab</span>
-    </a>
-  </header>
 
-  <main class="rsi-main">
-    <section class="rsi-hero">
-      <div class="rsi-hero-meta">
-        <p class="rsi-eyebrow">GEO / BYTE</p>
-        <h1 class="rsi-title" id="rsiBadge">GEO RSI</h1>
-        <p class="rsi-lede">A compact explorer for the <strong>relative spectral index</strong> we use to map
-          hydrothermal alteration from multispectral data. Move the bands, watch the response curve, read the
-          index the way our mineral-mapping group reads it.</p>
-        <ul class="rsi-tags">
-          <li>Remote sensing</li><li>Mineral mapping</li><li>SWIR · TIR</li><li>Open method</li>
+<div class="harness-shell" id="harnessApp">
+  <!-- Right rail: reserved instrument panels -->
+  <aside class="harness-rail" aria-label="Harness instruments">
+    <div class="harness-rail-top">
+      <div class="harness-brand" id="rsiBadge">
+        <span class="harness-brand-mark" aria-hidden="true"></span>
+        <span class="harness-brand-text">
+          <strong class="local-geobyte-wordmark">geobyte</strong>
+          <span class="harness-brand-sub">GEO RSI</span>
+        </span>
+      </div>
+      <p class="harness-tagline">地质科研自进化 harness · 7×24</p>
+    </div>
+
+    <div class="harness-panels">
+      <section class="harness-panel" data-panel="runtime">
+        <header class="harness-panel-head">
+          <h2>Runtime</h2>
+          <span class="harness-live" aria-live="polite"><i></i> online</span>
+        </header>
+        <dl class="harness-kv">
+          <div><dt>Uptime</dt><dd id="statUptime">—</dd></div>
+          <div><dt>Cycles</dt><dd id="statCycles">—</dd></div>
+          <div><dt>Mode</dt><dd>self-evolve</dd></div>
+        </dl>
+      </section>
+
+      <section class="harness-panel" data-panel="agents">
+        <header class="harness-panel-head">
+          <h2>Agents</h2>
+          <span class="harness-panel-hint">reserved</span>
+        </header>
+        <ul class="harness-agent-list" id="agentList">
+          <li><span class="harness-dot active"></span><span>Core planner</span><em>idle</em></li>
+          <li><span class="harness-dot"></span><span>RSI analyst</span><em>standby</em></li>
+          <li><span class="harness-dot"></span><span>Field critic</span><em>standby</em></li>
+          <li><span class="harness-dot"></span><span>Index calibrator</span><em>standby</em></li>
         </ul>
-      </div>
-      <div class="rsi-plot-wrap">
-        <canvas aria-label="Spectral response curve and computed RSI value" class="rsi-plot" height="420" width="640"></canvas>
-        <p class="rsi-readout"><span class="rsi-readout-label">RSI</span><span class="rsi-readout-value">0.00</span></p>
-      </div>
-    </section>
+      </section>
 
-    <section class="rsi-controls">
-      <article class="rsi-card">
-        <h2>Band response</h2>
-        <p class="rsi-note">Every slider scales one absorption feature. The curve is normalised reflectance,
-          so the shape is what matters, not the absolute level.</p>
-        <div class="rsi-sliders">
-          <label><span>Al-OH absorption 2.2 &micro;m</span><input max="100" min="0" step="1" type="range" value="62" data-rsi-key="clay"/></label>
-          <label><span>Fe-OH absorption 2.35 &micro;m</span><input max="100" min="0" step="1" type="range" value="28" data-rsi-key="fe"/></label>
-          <label><span>Quartz restlen (TIR contrast)</span><input max="100" min="0" step="1" type="range" value="41" data-rsi-key="quartz"/></label>
-          <label><span>Surface brightness</span><input max="100" min="5" step="1" type="range" value="70" data-rsi-key="gain"/></label>
+      <section class="harness-panel" data-panel="bands">
+        <header class="harness-panel-head">
+          <h2>Spectral bands</h2>
+          <span class="harness-panel-hint">preview</span>
+        </header>
+        <div class="harness-band-bars" aria-hidden="true">
+          <div class="harness-bar" style="--h:72%"><span>VNIR</span></div>
+          <div class="harness-bar" style="--h:88%"><span>SWIR1</span></div>
+          <div class="harness-bar" style="--h:64%"><span>SWIR2</span></div>
+          <div class="harness-bar" style="--h:48%"><span>TIR</span></div>
         </div>
-      </article>
-      <article class="rsi-card">
-        <h2>Definition</h2>
-        <pre class="rsi-formula">RSI = ( band_mean / band_peak )
-        - ( band shoulder / band peak )</pre>
-        <p class="rsi-note">Ratio of a reflectance shoulder to its absorption core. Positive peaks flag
-          argillic and phyllic halos; the value plotted above is the strongest feature in the window.</p>
-      </article>
-    </section>
+        <p class="harness-panel-foot">Al-OH 2.2 · Fe-OH 2.35 · quartz TIR</p>
+      </section>
 
-    <section class="rsi-table-wrap">
-      <h2>Window we map</h2>
-      <div class="table-scroll">
-        <table>
-          <caption class="sr-only">Spectral windows used by GEO RSI</caption>
-          <thead><tr><th scope="col">Window</th><th scope="col">Wavelength</th><th scope="col">Sensitivity</th><th scope="col">Reads as</th></tr></thead>
-          <tbody>
-            <tr><td>Visible</td><td>0.4 - 0.7 &micro;m</td><td>Iron oxide tint</td><td>Oxidised cap rocks</td></tr>
-            <tr><td>SWIR 1</td><td>1.55 - 1.75 &micro;m</td><td>Al-OH, Mg-OH</td><td>Clay alteration zones</td></tr>
-            <tr><td>SWIR 2</td><td>2.1 - 2.5 &micro;m</td><td>Carbonate, NH4</td><td>Distal propylitic</td></tr>
-            <tr><td>TIR</td><td>8 - 12 &micro;m</td><td>Quartz content</td><td>Silicification</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+      <section class="harness-panel" data-panel="queue">
+        <header class="harness-panel-head">
+          <h2>Task queue</h2>
+          <span class="harness-panel-hint">reserved</span>
+        </header>
+        <ol class="harness-queue" id="taskQueue">
+          <li class="is-done">Sync hydrothermal priors</li>
+          <li class="is-active">Refine RSI threshold curve</li>
+          <li>Awaiting field photo ingest</li>
+        </ol>
+      </section>
+    </div>
 
-    <section class="rsi-notes">
-      <h2>Limitations, stated plainly</h2>
-      <div class="rsi-note-grid">
-        <p><strong>Atmosphere first.</strong> Ratios suppress illumination but not water vapour; run this on
-          surface-reflectance products, not raw radiance.</p>
-        <p><strong>Mixing is the norm.</strong> A pixel holding 30% clay still reads weak. Report the fraction,
-          not just the flag.</p>
-        <p><strong>Field check beats the plot.</strong> Every anomaly listed here has been walked or sampled
-          before it enters the map.</p>
+    <footer class="harness-rail-foot">
+      <button aria-label="Switch to light theme" class="local-theme-btn harness-theme" id="themeBtn" type="button">
+        <svg aria-hidden="true" class="local-theme-icon-dark" fill="none" height="16" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" width="16"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8Z"></path></svg>
+        <svg aria-hidden="true" class="local-theme-icon-light" fill="none" height="16" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" width="16"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.2v2.4M12 19.4v2.4M2.2 12h2.4M19.2 12h2.4M5.1 5.1l1.7 1.7M17.2 17.2l1.7 1.7M18.9 5.1l-1.7 1.7M6.8 17.2l-1.7 1.7"></path></svg>
+      </button>
+      <a class="harness-back" href="index.html" data-geo-rsi-cover data-geo-rsi-anchor=".local-geo-rsi-cta">
+        <span aria-hidden="true">←</span> Lab
+      </a>
+    </footer>
+  </aside>
+
+  <!-- Left: conversation history list -->
+  <aside class="harness-history" aria-label="Conversation history">
+    <div class="harness-history-head">
+      <p class="harness-history-label">History</p>
+      <button type="button" class="harness-new-session" id="newSessionBtn">New session</button>
+    </div>
+    <nav class="harness-history-list" id="historyList" aria-label="Past sessions">
+      <a class="harness-history-item is-active" href="#session-current" data-session="current" aria-current="page">
+        <span class="harness-history-title">RSI threshold review</span>
+        <span class="harness-history-meta">active · just now</span>
+      </a>
+      <a class="harness-history-item" href="#session-swir" data-session="swir">
+        <span class="harness-history-title">SWIR clay anomaly batch</span>
+        <span class="harness-history-meta">yesterday · 24 turns</span>
+      </a>
+      <a class="harness-history-item" href="#session-field" data-session="field">
+        <span class="harness-history-title">Field photo ingest plan</span>
+        <span class="harness-history-meta">2d ago · 11 turns</span>
+      </a>
+      <a class="harness-history-item" href="#session-tir" data-session="tir">
+        <span class="harness-history-title">TIR quartz calibration</span>
+        <span class="harness-history-meta">5d ago · 38 turns</span>
+      </a>
+      <a class="harness-history-item" href="#session-priors" data-session="priors">
+        <span class="harness-history-title">Hydrothermal prior sync</span>
+        <span class="harness-history-meta">1w ago · 9 turns</span>
+      </a>
+      <a class="harness-history-item" href="#session-glossary" data-session="glossary">
+        <span class="harness-history-title">新人 RSI 术语对齐</span>
+        <span class="harness-history-meta">1w ago · 6 turns</span>
+      </a>
+    </nav>
+    <p class="harness-history-foot">本页演示 · 切换仅切换标题与种子消息</p>
+  </aside>
+
+  <!-- Center: current conversation -->
+  <main class="harness-main">
+    <header class="harness-top">
+      <div class="harness-top-left">
+        <p class="harness-eyebrow" id="sessionEyebrow">session · geology / rsi</p>
+        <h1 class="harness-title" id="sessionTitle">RSI threshold review</h1>
       </div>
-    </section>
+      <div class="harness-top-meta">
+        <span class="harness-chip">local</span>
+        <span class="harness-chip harness-chip-accent">self-evolving</span>
+      </div>
+    </header>
+
+    <div class="harness-body">
+      <div class="harness-chat" id="chatLog" role="log" aria-live="polite" aria-relevant="additions" aria-label="Harness conversation">
+        <article class="harness-msg system">
+          <div class="harness-msg-meta"><span class="harness-msg-role">system</span><time>boot</time></div>
+          <div class="harness-msg-body">
+            <p>GEO RSI harness online. 我持续监控光谱比值、蚀变异常与野外回传，按 7×24 自进化策略更新阈值与先验。</p>
+            <p class="harness-muted">下方输入任务或问题；右侧仪表栏为预留扩展位。</p>
+          </div>
+        </article>
+
+        <article class="harness-msg assistant">
+          <div class="harness-msg-meta"><span class="harness-msg-role">harness</span><time>00:00:12</time></div>
+          <div class="harness-msg-body">
+            <p>本轮周期摘要：</p>
+            <ul>
+              <li>SWIR 双窗（2.2 µm Al-OH / 2.35 µm Fe-OH）阈值保持 <code>τ = 0.18</code></li>
+              <li>TIR 石英对比度样本 +14，暂不改写 argillic 判别</li>
+              <li>异常图层 3 个兴趣点待野外核实（queue 面板）</li>
+            </ul>
+            <p>需要我重算 RSI 曲线、锁定某个波段，还是起草一版巡检提示？</p>
+          </div>
+        </article>
+
+        <article class="harness-msg user">
+          <div class="harness-msg-meta"><span class="harness-msg-role">you</span><time>00:01:04</time></div>
+          <div class="harness-msg-body">
+            <p>解释一下 RSI 和裸比值的区别，面向新入组的野外地质员。</p>
+          </div>
+        </article>
+
+        <article class="harness-msg assistant">
+          <div class="harness-msg-meta"><span class="harness-msg-role">harness</span><time>00:01:09</time></div>
+          <div class="harness-msg-body">
+            <p>裸比值把亮度当信号；RSI（relative spectral index）先用连续统（continuum）把背景抬平，再量吸收谷与肩部的相对深度。</p>
+            <pre class="harness-code">RSI = (shoulder − core) / shoulder</pre>
+            <p>因此对光照、坡度与传感器增益更稳。仍须在地表反射率产品上使用——大气水汽不会被比值抵消。</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- Grok-style scrub: horizontal ticks; hover shows a fade-in label list -->
+      <aside class="harness-scrub" id="chatScrub" aria-label="Conversation scrubber">
+        <button type="button" class="harness-scrub-end" id="scrubUp" aria-label="Scroll to previous turn">⌃</button>
+        <div class="harness-scrub-track" id="scrubTrack" role="listbox" aria-label="User message positions"></div>
+        <div class="harness-scrub-pop" id="scrubPop" aria-hidden="true"></div>
+        <button type="button" class="harness-scrub-end" id="scrubDown" aria-label="Scroll to next turn">⌄</button>
+      </aside>
+    </div>
+
+    <form class="harness-composer" id="composer" autocomplete="off">
+      <label class="sr-only" for="composerInput">Message the harness</label>
+      <textarea id="composerInput" class="harness-input" rows="1" placeholder="给 harness 下任务，或问一个光谱 / 蚀变问题…"></textarea>
+      <button type="submit" class="harness-send" id="sendBtn">
+        <span>Send</span>
+        <span aria-hidden="true">↵</span>
+      </button>
+    </form>
+    <p class="harness-composer-hint">演示界面 · 消息仅存于本页会话</p>
   </main>
-
-  <footer class="rsi-foot">
-    <span>Geobyte Lab · GEO RSI</span>
-    <span>Illustrative tooling, not a clinical or commercial product</span>
-  </footer>
 </div>
+
 <script src="local-effects.js"></script>
 <script src="geo-rsi.js"></script>
 </body></html>
