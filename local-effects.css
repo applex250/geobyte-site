@@ -185,18 +185,6 @@ html.light .local-hero-label { text-shadow: 0 0 1.5rem rgba(20,30,60,.10); }
 /* Offline poster is used only as a very subtle fallback below the canvas. */
 .local-poster-underlay { display: none !important; }
 
-/* The two scroll-cue canvases use the original 80vh / 36rem geometry. */
-.local-cue-host {
-  position: relative;
-  width: 100%;
-  max-width: 36rem;
-  height: 80vh;
-  min-height: 380px;
-  margin-inline: auto;
-  pointer-events: auto;
-}
-.local-cue-host + [data-astra-scroll-cue] { display: none !important; }
-
 /* Native reveal rhythm used by the local fallback layer. */
 .local-reveal {
   opacity: 0;
@@ -228,7 +216,6 @@ html.light .local-theme-btn .local-theme-icon-dark { display: none; }
   .local-particle-hero { min-height: 100svh !important; }
   .local-hero-label-left { top: 46%; left: 1rem; }
   .local-hero-label-right { top: 54%; right: 1rem; }
-  .local-cue-host { min-height: 300px; height: 70vh; }
 }
 
 @media (prefers-reduced-motion: reduce) {

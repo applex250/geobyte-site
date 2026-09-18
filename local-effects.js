@@ -100,117 +100,6 @@
     });
   }
 
-  /* ---------- shape construction ---------- */
-  function cubic(t, p0, p1, p2, p3) {
-    var mt = 1 - t;
-    return {
-      x: mt * mt * mt * p0.x + 3 * mt * mt * t * p1.x + 3 * mt * t * t * p2.x + t * t * t * p3.x,
-      y: mt * mt * mt * p0.y + 3 * mt * mt * t * p1.y + 3 * mt * t * t * p2.y + t * t * t * p3.y
-    };
-  }
-
-  // A continuous, deliberately asymmetric trajectory so the number reads as
-  // an energetic spiral rather than a font glyph.
-  function sixPath(t) {
-    var split = .405;
-    if (t < split) {
-      return cubic(t / split,
-        { x: .50, y: -.88 }, { x: .05, y: -1.12 },
-        { x: -.59, y: -.40 }, { x: -.37, y: .13 }
-      );
-    }
-    var centerX = .08;
-    var centerY = .33;
-    var radius = .48;
-    var startAngle = Math.atan2(.13 - centerY, -.37 - centerX);
-    var angle = startAngle - (t - split) / (1 - split) * Math.PI * 2.12;
-    return { x: centerX + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius };
-  }
-
-  function sixTangent(t) {
-    var before = sixPath(clamp(t - .002, 0, 1));
-    var after = sixPath(clamp(t + .002, 0, 1));
-    var dx = after.x - before.x;
-    var dy = after.y - before.y;
-    var length = Math.max(.0001, Math.hypot(dx, dy));
-    return { x: dx / length, y: dy / length, nx: -dy / length, ny: dx / length };
-  }
-
-  function knotPath(t, lane) {
-    var angle = t * Math.PI * 2;
-    var petal = .12 * Math.sin(angle * 3 + lane * Math.PI * 2);
-    var radius = .62 + petal;
-    return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius * .88 };
-  }
-
-  function cursorPath(t, lane) {
-    // Pointer perimeter, sampled continuously. It only needs to be a clear
-    // scroll-cue shape, not a branded mark.
-    var vertices = [
-      { x: -.28, y: -.72 }, { x: .20, y: -.12 }, { x: .00, y: -.12 },
-      { x: .23, y: .39 }, { x: .04, y: .48 }, { x: -.19, y: -.03 }
-    ];
-    var scaled = t * vertices.length;
-    var index = Math.floor(scaled) % vertices.length;
-    var next = vertices[(index + 1) % vertices.length];
-    var current = vertices[index];
-    var local = scaled - Math.floor(scaled);
-    var x = current.x + (next.x - current.x) * local;
-    var y = current.y + (next.y - current.y) * local;
-    return { x: x + (lane - .5) * .085, y: y + (lane - .5) * .085 };
-  }
-
-  function normalGaussian(rand) {
-    var a = Math.max(.0001, rand());
-    var b = rand();
-    return Math.sqrt(-2 * Math.log(a)) * Math.cos(Math.PI * 2 * b);
-  }
-
-  function makeSixField(count, seed) {
-    var rand = random(seed);
-    var points = [];
-    for (var i = 0; i < count; i++) {
-      var type = i / count;
-      var t = rand();
-      var base = sixPath(t);
-      var tangent = sixTangent(t);
-      var distribution = rand();
-      var spread;
-      var layer;
-
-      if (distribution < .54) {
-        spread = normalGaussian(rand) * (.014 + rand() * .034);
-        layer = 'core';
-      } else if (distribution < .86) {
-        spread = normalGaussian(rand) * (.042 + rand() * .085);
-        layer = 'cloud';
-      } else {
-        spread = normalGaussian(rand) * (.12 + rand() * .20);
-        layer = 'dust';
-      }
-
-      // Each point follows the continuous six but has its own longitudinal
-      // slip. This gives the flow volume rather than a dotted contour.
-      var along = normalGaussian(rand) * (layer === 'core' ? .008 : .026);
-      var x = base.x + tangent.nx * spread + tangent.x * along;
-      var y = base.y + tangent.ny * spread + tangent.y * along;
-      var target = knotPath(t, rand());
-      var hueRoll = rand();
-      points.push({
-        x: x, y: y, z: normalGaussian(rand) * (layer === 'dust' ? .28 : .16),
-        tx: target.x, ty: target.y,
-        t: t, nx: tangent.nx, ny: tangent.ny, ax: tangent.x, ay: tangent.y,
-        phase: rand() * Math.PI * 2, speed: .45 + rand() * .95,
-        size: layer === 'core' ? .55 + Math.pow(rand(), 1.8) * 1.7 : .25 + Math.pow(rand(), 1.65) * 1.25,
-        brightness: layer === 'core' ? .72 + rand() * .28 : layer === 'cloud' ? .34 + rand() * .48 : .13 + rand() * .34,
-        hue: hueRoll > .93 ? 2 : hueRoll > .76 ? 1 : 0,
-        layer: layer,
-        repel: .7 + rand() * .9
-      });
-    }
-    return points;
-  }
-
   /* ---------- real-world coastline polygons (lon,lat pairs) ----------
      Approximate mainland outlines for the seven continents plus major
      islands, so the particle globe reads as Earth, not an abstract ball. */
@@ -661,26 +550,6 @@
     return points;
   }
 
-  function makeCueField(count, type, seed) {
-    var rand = random(seed);
-    var points = [];
-    for (var i = 0; i < count; i++) {
-      var t = i / count;
-      var lane = rand();
-      var shape = type === 'cursor' ? cursorPath(t, lane) : knotPath(t, lane);
-      var target = type === 'cursor' ? knotPath(t, lane) : cursorPath(t, lane);
-      points.push({
-        x: shape.x + normalGaussian(rand) * .025, y: shape.y + normalGaussian(rand) * .025,
-        z: normalGaussian(rand) * .11, tx: target.x, ty: target.y,
-        t: t, nx: 0, ny: 0, ax: 0, ay: 0,
-        phase: rand() * Math.PI * 2, speed: .45 + rand() * .8,
-        size: .35 + rand() * 1.05, brightness: .38 + rand() * .5,
-        hue: rand() > .85 ? 1 : 0, layer: rand() > .72 ? 'cloud' : 'core', repel: .6 + rand()
-      });
-    }
-    return points;
-  }
-
   /* ---------- Canvas renderer ---------- */
   function ParticleField(host, options) {
     this.host = host;
@@ -771,11 +640,7 @@
 
   ParticleField.prototype.buildPoints = function () {
     var count = this.options.count || (this.width < 700 ? 1600 : 3200);
-    this.points = this.options.kind === 'earth'
-      ? makeEarthField(count, this.options.seed || 33)
-      : this.options.kind === 'six'
-        ? makeSixField(count, this.options.seed || 19)
-        : makeCueField(count, this.options.kind || 'knot', this.options.seed || 61);
+    this.points = makeEarthField(count, this.options.seed || 33);
     var startRand = random((this.options.seed || 1) + 800);
     for (var pointIndex = 0; pointIndex < this.points.length; pointIndex++) {
       var point = this.points[pointIndex];
@@ -943,7 +808,7 @@
 
     var centerX = width / 2;
     var centerY = height / 2;
-    var scale = this.options.kind === 'six' ? height * .50 : this.options.kind === 'earth' ? Math.min(width, height) * .43 : Math.min(width, height) * .30;
+    var scale = Math.min(width, height) * .43;
     var cosRotation = Math.cos(this.rotation);
     var sinRotation = Math.sin(this.rotation);
     var cosPitch = Math.cos(this.pitch);
@@ -1121,7 +986,7 @@
     if (!reduceMotion) requestAnimationFrame(this.render);
   };
 
-  /* ---------- install Hero and scroll-cue fields ---------- */
+  /* ---------- install the Hero particle field ---------- */
   var hero = q('main > div[data-astra-experience="true"] > div > article > section');
   var heroLayout = hero && q('.AstraHero-module___Ja0lG__layout', hero);
   var heroField;
@@ -1159,7 +1024,7 @@
     // clip-path animates on the main thread, so an arrival transition gets it
     // first: placing ~5k particles mid-contraction is what dropped frames.
     // When deferred, sync scroll state too — updateScroll() is only safe once
-    // the rest of this script (cueFields, revealTargets) has initialised.
+    // the rest of this script (revealTargets) has initialised.
     function startHeroAfterCover() {
       buildHeroField();
       updateScroll();
@@ -1171,25 +1036,8 @@
       buildHeroField();
     }
   }
-  // Earliest point where a return-trip anchor (the capsule) is guaranteed to
-  // exist, ahead of the cheaper scroll-cue fields.
+  // Earliest point where a return-trip anchor (the capsule) is guaranteed to exist.
   requestAnimationFrame(revealFromCover);
-
-  var cueFields = [];
-  qa('[data-astra-scroll-cue]').forEach(function (cue, index) {
-    var parent = cue.parentElement;
-    if (!parent) return;
-    var host = document.createElement('div');
-    host.className = 'local-particle-host local-cue-host';
-    host.tabIndex = 0;
-    host.setAttribute('role', 'img');
-    host.setAttribute('aria-label', index === 0 ? 'Drag or use arrow keys to rotate the cursor particle field' : 'Drag or use arrow keys to rotate the blossom particle field');
-    parent.insertBefore(host, cue);
-    cue.style.display = 'none';
-    var field = new ParticleField(host, { kind: index === 0 ? 'cursor' : 'knot', count: 540, seed: index + 90 });
-    cueFields.push({ field: field, parent: parent });
-    requestAnimationFrame(field.render);
-  });
 
   /* ---------- GEO RSI page transition ---------- */
   // A viewport-sized panel is clipped down to the capsule rectangle and the
@@ -1422,13 +1270,6 @@
       heroField.setProgress(heroProgress);
       heroField.setActive(heroRect.bottom > -80 && heroRect.top < vh + 80);
     }
-
-    cueFields.forEach(function (item) {
-      var rect = item.parent.getBoundingClientRect();
-      var cueProgress = clamp((vh * .78 - rect.top) / Math.max(rect.height + vh * .25, 1), 0, 1);
-      item.field.setProgress(cueProgress);
-      item.field.setActive(rect.bottom > -100 && rect.top < vh + 100);
-    });
   }
   addEventListener('scroll', updateScroll, { passive: true });
   updateScroll();
