@@ -193,6 +193,24 @@ html.light .local-hero-label { text-shadow: 0 0 1.5rem rgba(20,30,60,.10); }
 }
 .local-reveal.local-visible { opacity: 1; transform: none; }
 
+/* Restored panels for the scraped pill-tab bars. */
+.local-tab-panel {
+  max-width: 46rem;
+  margin: .4rem auto 0;
+  padding: 0 1.25rem;
+  text-align: center;
+  color: var(--color-primary-60, rgba(250,250,250,.6));
+  font-size: .92rem;
+  line-height: 1.65;
+}
+.local-tab-swap { animation: local-tab-fade 360ms cubic-bezier(.22,1,.36,1); }
+@keyframes local-tab-fade {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .local-tab-swap { animation: none; }
+}
+
 /* Local progress indicator, intentionally quiet like the original chrome. */
 .local-progress {
   position: fixed;

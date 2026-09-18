@@ -80,6 +80,7 @@ Hero 完全由 `local-effects.js` 在 Canvas 上绘制，没有任何底图：
 - 原站图标雪碧图 `/icons/cms/*.svg` 在静态站点会 404（搜索、关闭、菜单、箭头、社交图标因此是空白），已改为内联 `currentColor` SVG 图形
 - 无法获取的第三方字体（KaTeX、DSEG7 "Build Week Digital"）与一张原站图片所在的**死规则**已按"引用文件不存在"数据驱动地剔除，不留必然 404 的引用
 - 所有动效与渲染都在本地脚本内完成，页面不加载任何远程 JavaScript
+- 原站的 14 条胶囊选项卡栏（`role="tablist"`，共 55 个胶囊）随运行时失去了内容面板；`local-effects.js` 里的 `TAB_PANELS` 数据按文档顺序为每条栏补回面板文字（点击 / 左右方向键切换，遵循 `prefers-reduced-motion`），文案只复述页面已有事实
 
 ## 资源来源与许可（重要）
 
