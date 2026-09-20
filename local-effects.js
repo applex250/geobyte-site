@@ -1254,12 +1254,18 @@
     revealTargets.forEach(function (target) { revealObserver.observe(target); });
   } else revealTargets.forEach(function (target) { target.classList.add('local-visible'); });
 
-  /* ---------- section headings: unify on the About scale ----------
-     The seven major section headings ship as h2.text-h3 (small,
-     left-aligned). Promote them to the display size and centre them
-     like the About heading; table captions are h3 and stay put. */
-  qa('main h2.text-h3').forEach(function (h) {
-    h.classList.replace('text-h3', 'text-h2');
+  /* ---------- section headings: only nav targets go display-size ----------
+     Big centred headings are reserved for the five sections the top
+     nav jumps to (About, Research directions, Team, Platforms, Join).
+     The narrative headings the nav skips (Interpretation, Reliable
+     geoscience, Open science) stay at their smaller text-h3 scale. */
+  var navTargets = {};
+  qa('header nav a[href^="#"]').forEach(function (a) {
+    navTargets[a.getAttribute('href').slice(1)] = true;
+  });
+  qa('main h2[id]').forEach(function (h) {
+    if (!navTargets[h.id]) return;
+    if (h.classList.contains('text-h3')) h.classList.replace('text-h3', 'text-h2');
     h.classList.add('local-mega-h');
   });
 
