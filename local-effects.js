@@ -1246,14 +1246,22 @@
 
   /* ---------- scrolling, reveals, and activity ---------- */
   var header = q('header');
-  var revealTargets = qa('figure, [data-testid="citations"], main section:not(:first-child)');
-  revealTargets.forEach(function (target) { target.classList.add('local-reveal'); });
+  var revealTargets = qa('figure, [data-testid="citations"], main section:not(:first-child)');  revealTargets.forEach(function (target) { target.classList.add('local-reveal'); });
   if ('IntersectionObserver' in window && !reduceMotion) {
     var revealObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) { if (entry.isIntersecting) entry.target.classList.add('local-visible'); });
     }, { threshold: .08 });
     revealTargets.forEach(function (target) { revealObserver.observe(target); });
   } else revealTargets.forEach(function (target) { target.classList.add('local-visible'); });
+
+  /* ---------- section headings: unify on the About scale ----------
+     The seven major section headings ship as h2.text-h3 (small,
+     left-aligned). Promote them to the display size and centre them
+     like the About heading; table captions are h3 and stay put. */
+  qa('main h2.text-h3').forEach(function (h) {
+    h.classList.replace('text-h3', 'text-h2');
+    h.classList.add('local-mega-h');
+  });
 
   /* ---------- tab panels ----------
      The scraped pill bars kept their chrome but lost their content

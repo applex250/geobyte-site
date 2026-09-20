@@ -211,6 +211,13 @@ html.light .local-hero-label { text-shadow: 0 0 1.5rem rgba(20,30,60,.10); }
   .local-tab-swap { animation: none; }
 }
 
+/* Promoted section headings sit centred like the About heading. */
+.local-mega-h { text-align: center; margin-inline: auto; }
+
+/* Steadier rhythm in the content flow: the scraped 120px inter-block
+   gap doubled into ~400px voids around the slim quote cards. */
+main article { row-gap: clamp(3.25rem, 8vh, 5rem); }
+
 /* Local progress indicator, intentionally quiet like the original chrome. */
 .local-progress {
   position: fixed;
