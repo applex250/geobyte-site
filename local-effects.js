@@ -1264,14 +1264,14 @@
     /* 0 About — research software */
     [
       'TimeMachine is the 4D paleogeographic reconstruction platform of the International Association for Paleogeography: browser-based, GPU-accelerated, and built to turn plate models into shareable maps.',
-      'WebGPlates is ongoing research software maintained via the PI, developed alongside TimeMachine for plate-model work.',
+      'WebGPlates is plate-modelling software, built and maintained with our research software collaborators.',
       'PaleolithoSystem links well logs, seismic, core photos and thin sections on one depth axis, and uses a sedimentary-facies knowledge graph to guide human–AI annotation.',
       'Deeptime Harvester is a Zotero plugin that labels figures and extracts knowledge from the literature, turning a reference library into structured observations.',
       'The facies knowledge graph is an expert-reviewed extraction of sedimentary-facies concepts from the literature; it guides annotation and keeps every interpretation provenance-tracked.'
     ],
     /* 1 Interpretation under uncertainty — method */
     [
-      'Information theory quantifies how much an observation actually constrains an interpretation (Li & Plink-Björklund, 2019, Geophysical Research Letters).',
+      'How tightly does an observation pin down an interpretation? That is a measurable quantity, not a matter of taste.',
       'Bayesian inference treats competing depositional readings as competing hypotheses: evidence updates how plausible each one is instead of collapsing the ambiguity into a single answer.',
       'In the spirit of Chamberlin’s multiple working hypotheses: keep every defensible reconstruction on the table, say how likely each is, and let new evidence re-rank them.'
     ],
@@ -1280,7 +1280,7 @@
       'Source-to-sink: from erosion to final deposit, tracing what a routing system transmits and what it destroys.',
       'Signal propagation: which environmental signals survive burial — and what a stratigraphic archive can and cannot record.',
       'Fluvial sedimentology: river deposits as the lab’s core field material, from modern analogues to deep-time basins.',
-      'Supercritical flow: what Eocene river deposits of the Green River Formation (Uinta Basin, Utah) record about it.',
+      'Supercritical flow: the Eocene river deposits of the Green River Formation (Uinta Basin, Utah) are our field reference.',
       'Lacustrine basins: a depositional setting we read at basin scale, alongside the fluvial and seismic record.',
       'Well logs: the densest subsurface record — they anchor our annotation workflows and blind-well tests.',
       'Seismic facies: an in-house prototype evaluated on public 3D seismic benchmarks, with expert review kept in the loop.',
@@ -1308,15 +1308,15 @@
       'Where a basin actually was: plate-model output turns present-day maps into paleo-coordinates through time.',
       'Stackable layers — coastlines, facies, climate — that keep a reconstruction legible and comparable.'
     ],
-    /* 6 ontology card (hidden duplicate) */
+    /* 6 seismic-facies card */
     [
-      'Faults define the skeleton a seismic interpretation hangs on.',
+      'Interpretation runs in order — faults, then geologic time, then facies — because each step depends on the one before.',
       'The 3D volume our seismic-facies prototype is benchmarked on.',
       'Interpretation ordered by geologic time, not by survey history.'
     ],
-    /* 7 ontology card (hidden duplicate) */
+    /* 7 forward-modelling card */
     [
-      'Synthetic experiments with exact ground truth isolate what a method can and cannot see.',
+      'Known ground truth turns a test into a statement about the method, not just about one section.',
       'Generated sections train and stress-test interpretation before real data are touched.'
     ],
     /* 8 reproducibility protocol */
@@ -1343,20 +1343,20 @@
     ],
     /* 11 IAP & outreach */
     [
-      'The sedimentary-facies knowledge graph, published with PaleolithoSystem on the IAP community platform.',
+      'PaleolithoSystem’s 2026 release is live on the IAP community platform; the knowledge graph itself keeps growing, with an open release planned.',
       'Meet us at the hands-on course “Reconstruct Asia in 4D with TimeMachine” — 6 November 2026, Beijing.'
     ],
     /* 12 Reliable geoscience */
     [
-      'Predictions are compared against wells the model never saw; failures are documented, not hidden.',
+      'Blind means blind — no leakage from the training wells, and the misses reported alongside the hits.',
       'Where experts disagree, the disagreement itself is data — we record it instead of averaging it away.',
       'Real subsurface data are sparsely labelled; our methods are built and tested for exactly that condition.',
       'Boundaries come with stated confidence — shown as probabilities, not drawn as lines of certainty.'
     ],
     /* 13 Open and responsible science */
     [
-      'Every observation keeps its provenance; public results distinguish observation, inference, simulation, and speculation.',
-      'Each release ships a model card: what it was built on, where it fails, and which licence applies — confidence is shown, not implied.'
+      'Where a value came from is part of the value — every observation keeps its provenance.',
+      'Every release states what it was built on, where it fails, and which licence applies — confidence is shown, not implied.'
     ]
   ];
 
