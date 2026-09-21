@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Typed decisions through the local Laya service (default), OpenRouter or TypeSafe. Python standard library only."""
+"""Typed decisions through the local campus Laya service (L-only build). Python standard library only."""
 
 import argparse
 import json
@@ -11,10 +11,6 @@ import time
 import urllib.error
 import urllib.request
 
-DEFAULT_MODEL = "typesafe/jev-1.13"
-DECISIONS_URL = "https://openrouter.ai/api/alpha/decisions"
-TYPESAFE_URL = "https://api.typesafe.ai/v1/systemone"
-TYPESAFE_MODEL = "jev-1.13.0"
 LAYA_URL = os.environ.get("LAYA_URL", "http://172.27.116.56:8000/v1/predict")
 LAYA_MODELS = ("english", "multilingual", "typed-decisions")
 LAYA_DEFAULT_MODEL = "multilingual"
@@ -99,29 +95,13 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def http_json(url, payload, timeout=30):
-    """No retries or redirects; never put API keys or provider error bodies in logs."""
-    endpoints = {
-        DECISIONS_URL: ("OPENROUTER_API_KEY", "OpenRouter"),
-        "https://openrouter.ai/api/v1/chat/completions": ("OPENROUTER_API_KEY", "OpenRouter"),
-        TYPESAFE_URL: ("TYPESAFE_API_KEY", "TypeSafe"),
-        LAYA_URL: (None, "Laya"),
-    }
-    if url not in endpoints:
-        raise JevError("Only the documented Laya, OpenRouter and TypeSafe endpoints are supported")
-    key_name, provider_name = endpoints[url]
+    """No retries or redirects; the campus Laya endpoint is the only destination."""
+    if url != LAYA_URL:
+        raise JevError("Only the campus Laya endpoint is supported in this build")
     number(timeout, 0.1, 300, "timeout")
-    headers = {"Content-Type": "application/json"}
-    if key_name:
-        key = os.environ.get(key_name, "").strip()
-        if not key:
-            raise JevError(f"Set {key_name} in the calling process environment; run setup for choices")
-        if any(ord(character) < 33 or ord(character) > 126 for character in key):
-            raise JevError(f"{key_name} contains invalid whitespace or non-ASCII characters")
-        headers["Authorization"] = f"Bearer {key}"
-        headers["X-OpenRouter-Title"] = "Jev Skill"
     request = urllib.request.Request(
         url, data=json.dumps(payload, allow_nan=False).encode(),
-        headers=headers, method="POST",
+        headers={"Content-Type": "application/json"}, method="POST",
     )
     try:
         with urllib.request.build_opener(NoRedirect).open(request, timeout=timeout) as response:
@@ -129,14 +109,14 @@ def http_json(url, payload, timeout=30):
     except urllib.error.HTTPError as error:
         status = error.code
         error.close()
-        raise JevError(f"{provider_name} HTTP {status}; no automatic retry was made",
+        raise JevError(f"Laya HTTP {status}; no automatic retry was made",
                        http_status=status) from None
     except (urllib.error.URLError, TimeoutError, OSError):
-        raise JevError(f"{provider_name} connection failed or timed out; no automatic retry was made") from None
+        raise JevError("Laya connection failed or timed out; no automatic retry was made") from None
     except (json.JSONDecodeError, UnicodeError):
-        raise JevError(f"{provider_name} returned invalid JSON") from None
+        raise JevError("Laya returned invalid JSON") from None
     if not isinstance(result, dict) or "error" in result:
-        raise JevError(f"{provider_name} returned an error or a non-object response")
+        raise JevError("Laya returned an error or a non-object response")
     return result
 
 
@@ -215,31 +195,22 @@ def merge_laya_parts(parts):
     return merge(parts[0], parts[1])
 
 
-def request_decisions(payload, timeout=30, provider="laya"):
-    if provider not in {"laya", "openrouter", "typesafe"}:
-        raise JevError("provider must be laya, openrouter, or typesafe")
-    url = {"openrouter": DECISIONS_URL, "typesafe": TYPESAFE_URL, "laya": LAYA_URL}[provider]
-    response = http_json(url, validate_request(payload), timeout)
-    return unwrap_laya(response) if provider == "laya" else response
+def request_decisions(payload, timeout=30):
+    return unwrap_laya(http_json(LAYA_URL, validate_request(payload), timeout))
 
 
 def setup_report():
-    """Inspect presence only. Do not test credentials, write config or choose a mode."""
-    available = {name: bool(os.environ.get(key, "").strip()) for name, key in
-                 [("openrouter", "OPENROUTER_API_KEY"), ("typesafe", "TYPESAFE_API_KEY")]}
+    """Read-only facts about the only route. Makes no network call or configuration change."""
     return {
-        "available": available,
-        "default_provider": "laya",
-        "recommended_provider": "laya",
-        "requires_user_choice": False, "jev_called": False,
-        "options": {
-            "L": "Local Laya (default in this adapted install): keyless campus decision service; no cost.",
-            "A": "Real Jev: use or obtain an OpenRouter key if you use OpenRouter; otherwise a TypeSafe key.",
-            "B": "After consent, use the current agent or an explicitly selected available model such as DeepSeek to simulate; no Jev probabilities.",
-        },
-        "key_pages": {"openrouter": "https://openrouter.ai/settings/keys",
-                      "typesafe": "https://console.typesafe.ai"},
-        "note": "Presence is not authentication or credit validation. No network call or configuration change was made.",
+        "route": "L",
+        "endpoint": LAYA_URL,
+        "key_required": False,
+        "cost": "free (campus network service)",
+        "variants": list(LAYA_MODELS),
+        "model_routing": "auto (classification by language, scores to typed-decisions); --model forces one variant",
+        "jev_called": False,
+        "note": "L-only build: no OpenRouter/TypeSafe and no simulation mode. "
+                "Override the endpoint with the LAYA_URL environment variable.",
     }
 
 
@@ -320,10 +291,8 @@ def parser():
     text.add_argument("--text-file", help="UTF-8 file, or - for stdin")
     classify.add_argument("--criteria", required=True, help="JSON file mapping labels to descriptions")
     for command in [decide, classify]:
-        command.add_argument("--provider", choices=["laya", "openrouter", "typesafe"], default="laya",
-                             help="Explicit destination; default laya (local, keyless). Never falls back automatically")
-        command.add_argument("--model", help=f"Default: request model, JEV_MODEL, or provider default "
-                             f"({LAYA_DEFAULT_MODEL} for laya, {DEFAULT_MODEL} for openrouter)")
+        command.add_argument("--model", help=f"Default: request model, JEV_MODEL, or auto routing; force one of "
+                             f"{', '.join(LAYA_MODELS)}")
         command.add_argument("--min-probability", type=float, default=0.8,
                              help="Top-choice/binary certainty threshold, not API confidence")
         command.add_argument("--min-margin", type=float, default=0.15)
@@ -354,26 +323,19 @@ def main(argv=None):
                              "criteria": read_json(args.criteria)}}}
         if not isinstance(payload, dict):
             raise JevError("Request must be a JSON object")
-        default_model = {"openrouter": DEFAULT_MODEL, "typesafe": TYPESAFE_MODEL,
-                         "laya": "auto"}[args.provider]
-        payload["model"] = args.model or payload.get("model") or os.environ.get("JEV_MODEL") or default_model
-        # Bundled examples carry the OpenRouter model ID; explicit provider selection
-        # maps that one known ID. Custom overrides are never rewritten.
-        if args.provider == "typesafe" and not args.model and payload["model"] == DEFAULT_MODEL:
-            payload["model"] = TYPESAFE_MODEL
+        payload["model"] = args.model or payload.get("model") or os.environ.get("JEV_MODEL") or "auto"
         routes = None
         language = None
         strategy = "explicit"
-        if args.provider == "laya":
-            if args.model and args.model != "auto" and args.model not in LAYA_MODELS:
-                raise JevError(f"--model for laya must be one of {', '.join(LAYA_MODELS)} or 'auto'")
-            if payload["model"] not in LAYA_MODELS:
-                # Unresolved or bundled model IDs: route per the decision table.
-                strategy = "auto"
-                routes, language = auto_route(payload)
-                if len(routes) == 1:
-                    payload["model"] = routes[0][0]
-                    routes = None
+        if args.model and args.model != "auto" and args.model not in LAYA_MODELS:
+            raise JevError(f"--model must be one of {', '.join(LAYA_MODELS)} or 'auto'")
+        if payload["model"] not in LAYA_MODELS:
+            # Unresolved or bundled upstream model IDs: route per the decision table.
+            strategy = "auto"
+            routes, language = auto_route(payload)
+            if len(routes) == 1:
+                payload["model"] = routes[0][0]
+                routes = None
         validate_request(payload)
         number(args.min_probability, 0.5, 1, "min_probability")
         number(args.min_margin, 0, 1, "min_margin")
@@ -388,11 +350,11 @@ def main(argv=None):
         started = time.monotonic()
         if routes:
             parts = [request_decisions(sub_request(payload, model_name, kinds),
-                                       timeout=args.timeout, provider=args.provider)
+                                       timeout=args.timeout)
                      for model_name, kinds in routes]
             response = merge_laya_parts(parts)
         else:
-            response = request_decisions(payload, timeout=args.timeout, provider=args.provider)
+            response = request_decisions(payload, timeout=args.timeout)
         review_labels = REVIEW_LABELS | set(args.review_label)
         if isinstance(response, list):
             report = {"items": [build_report(payload, item, args.min_probability, args.min_margin,
@@ -406,21 +368,17 @@ def main(argv=None):
             needs_review = any(d["status"] == "needs_review" for d in report["decisions"].values())
             backend = response.get("model")
         report["elapsed_seconds"] = round(time.monotonic() - started, 6)
-        report["mode"] = "laya_api" if args.provider == "laya" else "jev_api"
-        # Laya is a local service, not TypeSafe Jev: label the backend honestly.
-        report["jev_called"] = args.provider != "laya"
-        report["laya_called"] = args.provider == "laya"
-        if args.provider == "laya":
-            if routes:
-                backend = "+".join(model_name for model_name, _ in routes)
-                report["routing"] = {"strategy": "auto", "language": language,
-                                     "requests": len(routes),
-                                     "models": [model_name for model_name, _ in routes]}
-            else:
-                report["routing"] = {"strategy": strategy, "requests": 1,
-                                     "models": [payload["model"]]}
-            report["backend"] = backend
-        report["transport"] = args.provider
+        report["mode"] = "laya_api"
+        report["laya_called"] = True
+        if routes:
+            report["routing"] = {"strategy": "auto", "language": language,
+                                 "requests": len(routes),
+                                 "models": [model_name for model_name, _ in routes]}
+        else:
+            report["routing"] = {"strategy": strategy, "requests": 1,
+                                 "models": [payload["model"]]}
+        report["backend"] = "+".join(model_name for model_name, _ in routes) if routes else backend
+        report["transport"] = "laya"
         print(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False))
         return 2 if needs_review else 0
     except (JevError, OSError, json.JSONDecodeError, UnicodeError) as error:

@@ -4,9 +4,9 @@ This installation of `jev-skill` is **adapted**: the default provider is the
 local Laya decision service instead of OpenRouter/TypeSafe Jev.
 
 - **Provenance:** adapted from `wuyoscar/jev-skill` **v0.2.0** (commit
-  `82c0105`, tag verified) on 2026-09-21. Only `jev/scripts/jev.py` and the
-  SKILL.md files differ from upstream; `--provider openrouter|typesafe`
-  behavior is unchanged for those routes.
+  `82c0105`, tag verified) on 2026-09-21, then reworked to an **L-only**
+  build: OpenRouter/TypeSafe routes and the simulation mode are removed; the
+  campus Laya service is the only destination.
 - **Service:** `http://172.27.116.56:8000` — campus LAN only, HTTP, no API key
   (the server's optional key is not enabled). Swagger docs: `/docs`, health:
   `/health`. Override the endpoint with the `LAYA_URL` environment variable.
@@ -15,13 +15,13 @@ local Laya decision service instead of OpenRouter/TypeSafe Jev.
 
 | Aspect | Upstream (Jev) | This install (Laya) |
 |---|---|---|
-| Default `--provider` | `openrouter` | `laya` |
+| Routes | OpenRouter / TypeSafe | campus Laya only (keyless, free) |
 | Endpoint | `openrouter.ai/api/alpha/decisions` / `api.typesafe.ai/v1/systemone` | `http://172.27.116.56:8000/v1/predict` |
 | Auth | `OPENROUTER_API_KEY` / `TYPESAFE_API_KEY` | none |
 | Model choice | default `typesafe/jev-1.13` | auto-routes per the decision table below; `--model` overrides |
 | Response shape | `answers` at top level | wrapped in `result` (unwrapped by the script) |
 | Batch | one request per invocation | `state` may be a list (≤200 records); report gains `items` |
-| Report labels | `mode: jev_api`, `jev_called: true` | `mode: laya_api`, `jev_called: false`, `laya_called: true`, `backend: laya-rl-agent` |
+| Report labels | `mode: jev_api`, `jev_called: true` | `mode: laya_api`, `laya_called: true`, `backend: laya-rl-agent` |
 
 Request JSON is the native `state`/`questions` format unchanged: every question
 still needs `instructions`; `choice` criteria stay a label→description object,

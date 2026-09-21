@@ -5,57 +5,24 @@ description: Use for natural-language repository navigation or choosing which ob
 
 # Find likely code locations from observed candidates
 
-## Setup: choose the service or simulation
+## Route: local Laya only
 
-This install is adapted to call the local Laya decision service by default:
-http://172.27.116.56:8000 (campus network, no API key, no cost). OpenRouter and
-TypeSafe remain available via `--provider`; never print credentials. Do not
-silently change destination, send data, create an account or switch the host model.
+This build has exactly one decision route — the local Laya service on the
+campus network: http://172.27.116.56:8000 (override with the `LAYA_URL`
+environment variable). Keyless, no cost, and data stays inside the campus
+network. There is no provider choice and no simulation mode; a connection
+failure is reported, never silently routed elsewhere.
 
-If no route has been chosen, explain the available routes and ask:
-
-> **L — Local Laya (default, already configured):** keyless campus service,
-> no cost. The CLI auto-picks the variant per request (classification →
-> `english`/`multilingual` by language, `score` → `typed-decisions`); force
-> one with `--model`.
-> **A — Real Jev:** use/get an OpenRouter key at https://openrouter.ai/settings/keys
-> or a TypeSafe key at https://console.typesafe.ai. Configure it locally, not in chat.
-> **B — Simulate:** use the current agent, or an explicitly selected available
-> model such as DeepSeek, with the same context, questions and criteria.
-
-**Wait for an explicit choice.** Do not ask again for every record in the same
-approved task. API errors do not authorize switching providers or simulation.
-Missing both keys is not a dead end: offer B. It requires no Jev key but the
-chosen agent/model's ordinary access, usage costs and privacy terms still apply.
-Do not assume DeepSeek is installed, free or locally hosted.
-
-In B, return `mode: agent_simulation` for the current host or
-`mode: model_simulation` for another explicitly approved model, plus its actual
-model identity when available and `jev_called: false`. Each question has `value`,
-`needs_review`, a brief evidence-based `reason`, `probability: null` and
-`confidence: null`. Choice values must be supplied labels, Noul values booleans,
-and Score values integer rubric indices. Use null/review for missing evidence.
-Never present this as Jev, calibrated probability or equivalent speed/accuracy.
-Skip Jev CLI/API steps in B; use the approved model's existing interface and do
-not install a substitute or send data elsewhere without consent.
-
-L needs no key or selection: the adapted CLI defaults to `--provider laya`
-(http://172.27.116.56:8000/v1/predict); unresolved model IDs auto-route per
-the benchmarked decision table (classification by language, scores to
-`typed-decisions`). In A, select the destination
-explicitly: `--provider openrouter` or `--provider typesafe`. The latter uses
-`TYPESAFE_API_KEY` and maps the bundled OpenRouter model ID to `jev-1.13.0`.
-`--dry-run` only validates; it neither classifies nor makes a network call.
-`setup` reports presence only, not key validity, credits or permission. For guided setup and a copyable
-DeepSeek prompt, use `jev-setup` or the [setup guide](https://github.com/wuyoscar/jev-skill/blob/main/skills/jev-setup/SKILL.md).
+The CLI auto-picks the Laya variant per request (classification →
+`english`/`multilingual` by detected language, `score` → `typed-decisions`);
+force one with `--model`. `--dry-run` only validates; it neither classifies
+nor makes a network call. `setup` prints read-only route facts.
 
 ## Jev API prerequisite and first example
 
-In decision-API mode, this adapted install runs the shared script from the
-sibling `jev` skill folder directly (Python 3.10+), defaulting to the local
-keyless Laya provider. For OpenRouter or TypeSafe the process must inherit
-`OPENROUTER_API_KEY` or `TYPESAFE_API_KEY`; never place a key in a prompt or
-request file.
+In decision-API mode, this install runs the shared script from the sibling
+`jev` skill folder directly (Python 3.10+) against the local keyless Laya
+service — the only destination.
 No sibling skill or third-party integration is required for this judgment.
 Actual UI, file, mailbox or simulation actions require the host's own tools.
 
@@ -63,10 +30,8 @@ Resolve `<skill-dir>` to this installed folder. Copy and edit
 [assets/example.json](assets/example.json) for the user's task; it is synthetic
 input, not a captured successful result. Validate it without a key or API call:
 
-The commands below default to the local keyless Laya service
-(http://172.27.116.56:8000, campus network). For OpenRouter or official
-TypeSafe, append `--provider openrouter` or `--provider typesafe` to both
-validation and live calls.
+The commands call the local keyless Laya service (campus network) — the only
+destination in this build.
 
 ```bash
 python3 <jev-skill-dir>/scripts/jev.py decide <skill-dir>/assets/example.json --dry-run
@@ -74,8 +39,7 @@ python3 <jev-skill-dir>/scripts/jev.py decide <skill-dir>/assets/example.json --
 python3 <jev-skill-dir>/scripts/jev.py decide /path/to/edited-request.json
 ```
 
-Normal calls send the supplied evidence to the selected provider (Laya stays
-inside the campus network at no cost; OpenRouter/TypeSafe incur usage). Read relevant answers, not only the exit code: `0` means selected/scored,
+Normal calls send the supplied evidence to the campus Laya service at no cost. Read relevant answers, not only the exit code: `0` means selected/scored,
 `2` means review, `1` means error. A confidently false Noul is still false;
 selection is not permission. Unknown, missing or conflicting evidence needs a
 fallback. Test thresholds on the user's task rather than assuming 0.9 is safe.
@@ -113,4 +77,4 @@ host or person consumes each answer before enabling any automatic effect.
 
 [Related project or author example](https://github.com/ellipsis-dev/blink). Our workflow is an adaptation,
 not that project's code, an automatic installer, or a reproduced benchmark.
-[OpenRouter request contract](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-questions-and-answers-request).
+[Laya service docs](http://172.27.116.56:8000/docs).

@@ -1,9 +1,9 @@
 ---
 name: jev
-description: Adapted install — typed judgments via the local keyless Laya decision service (default; see references/laya.md) or TypeSafe Jev through OpenRouter / its official API, for context-rich typed judgments rather than generated prose, especially high-volume classification, scoring and routing with parallel independent decisions. Define questions, choices or rubrics for ambiguous agent checkpoints (goal drift, repeated failures, tool routing, completion claims), browser states or human review. Supply sufficient relevant context in every request and batch independent questions. Use code for exact rules or arithmetic; Jev is advisory, not an authorization or security boundary.
+description: L-only build — typed judgments via the local keyless Laya decision service on the campus network (free; see references/laya.md), for context-rich typed judgments rather than generated prose, especially high-volume classification, scoring and routing with parallel independent decisions. Define questions, choices or rubrics for ambiguous agent checkpoints (goal drift, repeated failures, tool routing, completion claims), browser states or human review. Supply sufficient relevant context in every request and batch independent questions. Use code for exact rules or arithmetic; Jev is advisory, not an authorization or security boundary.
 license: MIT
 metadata:
-  requirements: Adapted install — default provider is the keyless local Laya decision service (campus network, no cost), needs Python 3.10+ only. OpenRouter/TypeSafe still need OPENROUTER_API_KEY or TYPESAFE_API_KEY and incur charges. No MCP server required. User-approved host-agent simulation needs no key or CLI.
+  requirements: L-only build — the sole route is the keyless local Laya decision service (campus network, no cost); needs Python 3.10+ only. No MCP server required.
 ---
 
 # Jev
@@ -16,49 +16,18 @@ The recipe library is inspiration, **not a fixed menu of supported functions**.
 Customize the evidence, questions, criteria and next consumer for the user’s task.
 This changes the decision interface and workflow, not the model weights.
 
-## Setup: choose the service or simulation
+## Route: local Laya only
 
-This install is adapted to call the local Laya decision service by default:
-http://172.27.116.56:8000 (campus network, no API key, no cost). OpenRouter and
-TypeSafe remain available via `--provider`; never print credentials. Do not
-silently change destination, send data, create an account or switch the host model.
+This build has exactly one decision route — the local Laya service on the
+campus network: http://172.27.116.56:8000 (override with the `LAYA_URL`
+environment variable). Keyless, no cost, and data stays inside the campus
+network. There is no provider choice and no simulation mode; a connection
+failure is reported, never silently routed elsewhere.
 
-If no route has been chosen, explain the available routes and ask:
-
-> **L — Local Laya (default, already configured):** keyless campus service,
-> no cost. The CLI auto-picks the variant per request (classification →
-> `english`/`multilingual` by language, `score` → `typed-decisions`); force
-> one with `--model`.
-> **A — Real Jev:** use/get an OpenRouter key at https://openrouter.ai/settings/keys
-> or a TypeSafe key at https://console.typesafe.ai. Configure it locally, not in chat.
-> **B — Simulate:** use the current agent, or an explicitly selected available
-> model such as DeepSeek, with the same context, questions and criteria.
-
-**Wait for an explicit choice.** Do not ask again for every record in the same
-approved task. API errors do not authorize switching providers or simulation.
-Missing both keys is not a dead end: offer B. It requires no Jev key but the
-chosen agent/model's ordinary access, usage costs and privacy terms still apply.
-Do not assume DeepSeek is installed, free or locally hosted.
-
-In B, return `mode: agent_simulation` for the current host or
-`mode: model_simulation` for another explicitly approved model, plus its actual
-model identity when available and `jev_called: false`. Each question has `value`,
-`needs_review`, a brief evidence-based `reason`, `probability: null` and
-`confidence: null`. Choice values must be supplied labels, Noul values booleans,
-and Score values integer rubric indices. Use null/review for missing evidence.
-Never present this as Jev, calibrated probability or equivalent speed/accuracy.
-Skip Jev CLI/API steps in B; use the approved model's existing interface and do
-not install a substitute or send data elsewhere without consent.
-
-L needs no key or selection: the adapted CLI defaults to `--provider laya`
-(http://172.27.116.56:8000/v1/predict); unresolved model IDs auto-route per
-the benchmarked decision table (classification by language, scores to
-`typed-decisions`). In A, select the destination
-explicitly: `--provider openrouter` or `--provider typesafe`. The latter uses
-`TYPESAFE_API_KEY` and maps the bundled OpenRouter model ID to `jev-1.13.0`.
-`--dry-run` only validates; it neither classifies nor makes a network call.
-`setup` reports presence only, not key validity, credits or permission. For guided setup and a copyable
-DeepSeek prompt, use `jev-setup` or the [setup guide](https://github.com/wuyoscar/jev-skill/blob/main/skills/jev-setup/SKILL.md).
+The CLI auto-picks the Laya variant per request (classification →
+`english`/`multilingual` by detected language, `score` → `typed-decisions`);
+force one with `--model`. `--dry-run` only validates; it neither classifies
+nor makes a network call. `setup` prints read-only route facts.
 
 ## Context first
 
@@ -87,7 +56,7 @@ not a replacement for open-ended reasoning, planning or text generation.
   to its record. Group related records within context limits; for unrelated or
   large records, keep separate requests with sufficient context in each.
 - **Many independent requests:** have the host schedule bounded concurrency,
-  respecting provider limits and the user's cost/time budget. Preserve request,
+  respecting service limits and the user's time budget. Preserve request,
   record and question IDs even when responses arrive out of order. This CLI runs
   one request per invocation; it has no `--parallel` flag or built-in scheduler.
 - **Dependent steps:** questions cannot read other answers in the same request.
@@ -181,10 +150,8 @@ invent consent, approve spending, or remove a host confirmation requirement.
 Resolve `<skill-dir>` to the directory containing this `SKILL.md`; do not assume
 the project working directory is the skill directory. The script is self-contained.
 
-The commands below default to the local keyless Laya service
-(http://172.27.116.56:8000, campus network). For OpenRouter or official
-TypeSafe, append `--provider openrouter` or `--provider typesafe` to both
-validation and live calls.
+The commands call the local keyless Laya service (campus network) — the only
+destination in this build.
 
 ```bash
 python3 <skill-dir>/scripts/jev.py decide /path/to/request.json --dry-run
@@ -198,11 +165,9 @@ decision table in [the Laya adapter notes](references/laya.md): `choice`/`noul`
 questions go to `english`/`multilingual` by detected language, `score` questions
 go to `typed-decisions`; mixed requests are split into two calls and merged.
 Force one variant with `--model english|multilingual|typed-decisions`.
-For OpenRouter/TypeSafe the selected provider's key must already be in this
-process's environment. Never print it, copy it to another app, write it into
-the request, or change the agent's main model.
-OpenRouter model: `typesafe/jev-1.13`; direct TypeSafe: `jev-1.13.0`; override
-deliberately with `--model` or `JEV_MODEL`.
+The campus service is the only destination; connection failures are
+reported, never rerouted. Override the endpoint with `LAYA_URL`; force a
+variant with `--model english|multilingual|typed-decisions` or `JEV_MODEL`.
 Use files/stdin for untrusted content instead of interpolating it into shell commands.
 
 Exit **0**: valid selected/scored result; **2**: at least one question needs review;
@@ -227,7 +192,7 @@ Copy a matching asset, then replace its synthetic state and criteria:
 - [Document block](assets/document-block.json): type plus conditional companion questions.
 - [Conversation delivery](assets/voice-style.json): eligible speaker and scripted TTS style.
 
-Do not report the provider's generic `confidence` as the probability of correctness.
+Do not report the service's generic `confidence` as the probability of correctness.
 Do not call a semantic compliance or anti-cheating flag proof of wrongdoing. Jev can
 be wrong, manipulated, or overconfident; consequential decisions need appropriate
 human review and deterministic enforcement. See the references for specific limits.
